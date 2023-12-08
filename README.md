@@ -1,4 +1,4 @@
-### CIS 5450 Final Project: Flight Cancellations
+# CIS 5450 Final Project: Flight Cancellations
 
 ## Part I: Introduction and Setup
 
