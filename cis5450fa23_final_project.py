@@ -132,7 +132,7 @@ First we'll make a correlation matrix to see if any relationships or correlation
 """
 
 # Calculate the correlation matrix
-correlation_matrix = df.corr()
+correlation_matrix = df.corr(numeric_only=True)
 
 # Visualize the correlation matrix using a heatmap
 plt.figure(figsize=(12, 8))
@@ -530,7 +530,9 @@ model.fit(X_train_subset, y_cancelled_train)
 predictions = model.predict(X_test_subset)
 
 # Print findings
-print(classification_report(y_cancelled_test, predictions))
+print("Accuracy:", accuracy_score(y_cancelled_test, predictions))
+print("\nClassification Report:\n", classification_report(y_cancelled_test, predictions, zero_division=1))
+print("\nConfusion Matrix:\n", confusion_matrix(y_cancelled_test, predictions))
 
 """We could notice that there were 0 flights predicted as being cancelled, which occurs because much more flights will not be cancelled than cancelled in every scenario. Therefore, we will downsample the non-cancelled flights to be of the same length of the cancelled flights. After this, we will run our Logistic Regression again."""
 
@@ -563,7 +565,9 @@ model.fit(X_train_downsampled, y_train_downsampled)
 predictions = model.predict(X_test_subset)
 
 # Print findings
-print(classification_report(y_cancelled_test, predictions))
+print("Accuracy:", accuracy_score(y_cancelled_test, predictions))
+print("\nClassification Report:\n", classification_report(y_cancelled_test, predictions))
+print("\nConfusion Matrix:\n", confusion_matrix(y_cancelled_test, predictions))
 
 """While we do get many more false positives in this case, we also do much more correctly classify the actual cancelled flights. This shows the unpredictable nature of flight cancellations, but we can use our data to at least understand general trends and know which flights will be more likely to get cancelled than others.
 
@@ -582,7 +586,9 @@ model.fit(X_train_subset, y_modified_train)
 predictions = model.predict(X_test_subset)
 
 # Print findings
-print(classification_report(y_modified_test, predictions))
+print("Accuracy:", accuracy_score(y_modified_test, predictions))
+print("\nClassification Report:\n", classification_report(y_modified_test, predictions))
+print("\nConfusion Matrix:\n", confusion_matrix(y_modified_test, predictions))
 
 """In this case, we see that the precision is low and the model fails at capturing most modified flights with a recall of only 0.06 for the attribute. This shows the difficult nature in predicting whether or not flights will be modified. While the support is actually similar in size for the true and false, it may still be a confounding factor, so we can again downsize to see if this will result in a higher recall and precision."""
 
@@ -615,7 +621,9 @@ model.fit(X_train_downsampled, y_train_downsampled)
 predictions = model.predict(X_test_subset)
 
 # Print findings
-print(classification_report(y_modified_test, predictions))
+print("Accuracy:", accuracy_score(y_modified_test, predictions))
+print("\nClassification Report:\n", classification_report(y_modified_test, predictions))
+print("\nConfusion Matrix:\n", confusion_matrix(y_modified_test, predictions))
 
 """We can see that the precision, recall, and accuracy are all near 0.50, which shows how our classification is not much better than randomness. Therefore, we can reasonably conclude that for the features we selected, it is not possible to accurately predict whether or not the flight will be cancelled or delayed.
 
@@ -633,8 +641,9 @@ scaler = StandardScaler()
 scaled_features = scaler.fit_transform(cleaned_features)
 
 # KMeans Clustering
-kmeans = KMeans(n_clusters=3, random_state=42)
+kmeans = KMeans(n_clusters=3, n_init=10, random_state=42)
 kmeans_labels = kmeans.fit_predict(scaled_features)
+cleaned_features = cleaned_features.copy()
 cleaned_features['KMeans_Cluster'] = kmeans_labels
 clustered_df = pd.merge(downsampled_df, cleaned_features['KMeans_Cluster'], left_index=True, right_index=True, how='left')
 
@@ -658,7 +667,7 @@ Lastly, we are just going to create an interactive time series graph to show the
 # Create interactive time series graph to show data over time
 date_range = pd.date_range('2022-01-01', '2022-07-31', freq='D')
 num_days = len(date_range)
-temp_df_aggregated = df.groupby('FlightDate')['Cancelled', 'Delayed', 'Modified'].mean()
+temp_df_aggregated = df.groupby('FlightDate')[['Cancelled', 'Delayed', 'Modified']].mean()
 temp_df_aggregated_melted = pd.melt(temp_df_aggregated.reset_index(), id_vars=['FlightDate'],
                                value_vars=['Cancelled', 'Delayed', 'Modified'],
                                var_name='Attribute', value_name='Average Rates')
@@ -679,7 +688,7 @@ fig.show()
 
 **In the future:**
 
-1.   We could have included more datasets which detailed other potential confounding factors, such as the weather conditions of the various airports so we could have further examined if there was a relation between the airport's weather conditions and weather the flight is cancelled or delayed.
+1.   We could have included more datasets which detailed other potential confounding factors, such as the weather conditions of the various airports so we could have further examined if there was a relation between the airport's weather conditions and whether the flight is canceled or delayed.
 2.   In addition, we can further explore the use of more complex neural networks as classification models. These more advanced models could potentially lead to higher accuracy results.
 
 **Overall Experience + Team Reflection:**
