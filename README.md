@@ -1,4 +1,4 @@
-# CIS 5450 Final Project: Flight Cancellations
+# Examining Flight Cancellations
 ## Part I: Introduction and Setup
 * Introduce the problem: Explain why predicting flight cancellations is important and how it can benefit airlines and passengers.
 * Data source: Briefly describe the dataset, its features, and where it was obtained.
